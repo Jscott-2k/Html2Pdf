@@ -1,11 +1,12 @@
 param(
-    [string]$InputHtml = $args[0],
+    [string]$InputHtml,
     [string]$OutputPdf = $null
 )
 
+Add-Type -AssemblyName System.Windows.Forms
+
 if (-not $InputHtml -or -not (Test-Path $InputHtml)) {
-    Write-Error "Input HTML file not found."
-    pause
+    [System.Windows.Forms.MessageBox]::Show("Input HTML file not found.","Error",'OK','Error') | Out-Null
     exit 1
 }
 
