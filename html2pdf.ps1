@@ -39,19 +39,47 @@ if (Test-Path $OutputPdf) {
 # Start Chrome and wait for it to finish
 $chromeProcess = Start-Process -FilePath $chrome -ArgumentList @(
     "--headless",
-    "--disable-gpu",
     "--no-sandbox",
-    "--print-to-pdf=""$OutputPdf""",
+    "--disable-javascript",
+    "--print-to-pdf=$OutputPdf",
+    "--disable-background-networking",
+    "--disable-google-translate",
+    "--disable-features=NetworkService,NetworkServiceInProcess,PushMessaging,VoiceTyping,VoiceTranscription,BackgroundFetch,InterestFeedContentSuggestions,TensorFlowLite,AutofillServerCommunication,OptimizationHints,InstantExtendedAPI,TranslateUI,MediaRouter,Notifications,NetworkPrediction,AppBanners,BackForwardCache,TabGroups,ZeroSuggest,PasswordManager,WebRtcHardwareEncoding,BackgroundSync,PaymentHandler,StorageAccessAPI,Clipboard,WebAuthentication,WebUsb",
+    "--disable-sync",
+    "--disable-network",
+    "--disable-client-side-phishing-detection",
+    "--no-default-browser-check",
+    "--disable-extensions",
+    "--disable-default-apps",
+    "--disable-component-update",
+    "--disable-breakpad",
+    "--disable-domain-reliability",
+    "--disable-hang-monitor",
+    "--disable-ipc-flooding-protection",
+    "--disable-popup-blocking",
+    "--disable-prompt-on-repost",
+    "--disable-renderer-backgrounding",
+    "--disable-web-resources",
+    "--metrics-recording-only",
+    "--mute-audio",
+    "--no-first-run"
+    "--no-pings",
+    "--disable-translate-new-ux"
     $fileUrl
-) -Wait -NoNewWindow -PassThru
+) -NoNewWindow -PassThru
+
+if ($chromeProcess.ExitCode -ne 0) {
+    [System.Windows.Forms.MessageBox]::Show("Chrome exited with code $($chromeProcess.ExitCode). PDF creation failed.","Error",'OK','Error') | Out-Null
+    exit 3
+}
 
 # Wait up to 10 seconds for the PDF to appear
 $timeout = 10
 $elapsed = 0
 
 while (-not (Test-Path $OutputPdf) -and $elapsed -lt $timeout) {
-    Start-Sleep -Milliseconds 200
-    $elapsed += 0.2
+    Start-Sleep -Milliseconds 1000
+    $elapsed += 1
     Write-Host -NoNewline "."
 }
 Write-Host ""  # Newline after dots
@@ -72,5 +100,3 @@ if (Test-Path $OutputPdf) {
         'Error'
     ) | Out-Null
 }
-
-pause
